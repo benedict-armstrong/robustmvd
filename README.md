@@ -1,4 +1,14 @@
 # Robust Multi-view Depth
+
+> [!IMPORTANT]
+> This is a fork of [robustmvd](https://github.com/lmb-freiburg/robustmvd/tree/master) with `torch >= 2` and `uv` compatibility.
+
+## Install in a `uv` project
+
+```
+uv add https://github.com/benedict-armstrong/robustmvd.git
+```
+
 [**Paper**](http://arxiv.org/abs/2209.06681)
 
 **Robust** **M**ulti-**v**iew **D**epth (`robustmvd`) is a benchmark and framework for depth estimation 
