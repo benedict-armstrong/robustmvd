@@ -5,7 +5,6 @@ import random
 
 import numpy as np
 import torch
-from torch._six import string_classes
 import pytoml
 
 
@@ -146,7 +145,7 @@ def to_torch(data, device=None):
         return elem_type(*(to_torch(d, device=device) for d in data))
     elif isinstance(data, tuple):
         return [to_torch(d, device=device) for d in data]  # Backwards compatibility.
-    elif isinstance(data, collections.abc.Sequence) and not isinstance(data, string_classes):
+    elif isinstance(data, collections.abc.Sequence) and not isinstance(data, str):
         try:
             return elem_type([to_torch(d, device=device) for d in data])
         except TypeError:
@@ -185,7 +184,7 @@ def numpy_collate(batch):
     elif isinstance(elem, int):
         return np.array(batch)
 
-    elif isinstance(elem, string_classes):
+    elif isinstance(elem, str):
         return batch
 
     elif isinstance(elem, collections.abc.Mapping):
@@ -238,7 +237,7 @@ def to_numpy(data):
         return elem_type(*(to_numpy(d) for d in data))
     elif isinstance(data, tuple):
         return [to_numpy(d) for d in data]  # Backwards compatibility.
-    elif isinstance(data, collections.abc.Sequence) and not isinstance(data, string_classes):
+    elif isinstance(data, collections.abc.Sequence) and not isinstance(data, str):
         try:
             return elem_type([to_numpy(d) for d in data])
         except TypeError:

@@ -28,3 +28,5 @@ db.sqlite3
 .pytest_cache
 sample_data
 NOTES.md
+
+build/
