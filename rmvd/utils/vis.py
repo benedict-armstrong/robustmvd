@@ -13,7 +13,8 @@ from .turbo_colormap import cmap as turbo_cmap
 
 _DEFAULT_FONT_SIZE = 10
 _DEFAULT_FONT_PATH = '/tmp/OpenSans-Regular.ttf'
-_DEFAULT_FONTS = {_DEFAULT_FONT_SIZE: ImageFont.truetype(_DEFAULT_FONT_PATH, _DEFAULT_FONT_SIZE) if os.path.isfile(_DEFAULT_FONT_PATH) else None}
+_DEFAULT_FONTS = {_DEFAULT_FONT_SIZE: ImageFont.truetype(
+    _DEFAULT_FONT_PATH, _DEFAULT_FONT_SIZE) if os.path.isfile(_DEFAULT_FONT_PATH) else None}
 _DEFAULT_BBOX_COLOR = (238, 232, 213)
 _DEFAULT_BBOX_STROKE = None
 _DEFAULT_TEXT_COLOR = (0, 43, 54)
@@ -23,7 +24,8 @@ _DEFAULT_CMAP = 'turbo'
 def _get_default_font(size=None):
     if size is None:
         if _DEFAULT_FONT_SIZE not in _DEFAULT_FONTS:
-            _DEFAULT_FONTS[_DEFAULT_FONT_SIZE] = ImageFont.truetype(_DEFAULT_FONT_PATH, _DEFAULT_FONT_SIZE) if os.path.isfile(_DEFAULT_FONT_PATH) else None
+            _DEFAULT_FONTS[_DEFAULT_FONT_SIZE] = ImageFont.truetype(
+                _DEFAULT_FONT_PATH, _DEFAULT_FONT_SIZE) if os.path.isfile(_DEFAULT_FONT_PATH) else None
         return _DEFAULT_FONTS[_DEFAULT_FONT_SIZE]
     else:
         return ImageFont.truetype(_DEFAULT_FONT_PATH, size) if os.path.isfile(_DEFAULT_FONT_PATH) else None
@@ -73,12 +75,12 @@ def _cmap_max_str(cmap_name):
 
 def _get_draw_text(text, label, text_off, image_range_text, image_range_text_off):
     draw_text = ""
-    
+
     if label is not None:
         draw_text += str(label)
         if (not text_off) or (not image_range_text_off):
             draw_text += "\n"
-    
+
     if text is not None and not text_off:
         draw_text += text
         if not image_range_text_off:
@@ -92,7 +94,8 @@ def _get_draw_text(text, label, text_off, image_range_text, image_range_text_off
 
 def _to_img(arr, mode):
 
-    if mode == 'BGR' and arr.ndim == 3:  # convert('BGR') somehow does not work..
+    # convert('BGR') somehow does not work..
+    if mode == 'BGR' and arr.ndim == 3:
         arr = arr[:, :, ::-1]
         mode = 'RGB'
 
@@ -105,7 +108,8 @@ def _convert_to_out_format(img, out_format):
     if out_format['type'] == 'PIL':
         out = img
     elif out_format['type'] == 'np':
-        out = np.array(img, dtype=out_format['dtype'] if 'dtype' in out_format else None).transpose(2, 0, 1)
+        out = np.array(
+            img, dtype=out_format['dtype'] if 'dtype' in out_format else None).transpose(2, 0, 1)
     return out
 
 
@@ -124,21 +128,23 @@ def _apply_out_action(out, out_action, out_format):
     elif isinstance(out_action, str):
         if out_action == 'show':
             out.show()
-            
-            
+
+
 def _equalize_sizes(imgs):
     if isinstance(imgs[0], Image.Image):
         max_width = max([img.width for img in imgs])
         max_height = max([img.height for img in imgs])
         for i, img in enumerate(imgs):
             if img.width != max_width or img.height != max_height:
-                imgs[i] = img.resize(size=(max_width, max_height), resample=Image.NEAREST)
+                imgs[i] = img.resize(
+                    size=(max_width, max_height), resample=Image.NEAREST)
     else:  # np, shape CHW
         max_width = max([img.shape[2] for img in imgs])
         max_height = max([img.shape[1] for img in imgs])
         for i, img in enumerate(imgs):
             if img.shape[2] != max_width or img.shape[1] != max_height:
-                imgs[i] = skimage.transform.resize(img, [img.shape[0], max_height, max_width], order=0, preserve_range=True)
+                imgs[i] = skimage.transform.resize(
+                    img, [img.shape[0], max_height, max_width], order=0, preserve_range=True)
     return imgs
 
 
@@ -224,7 +230,8 @@ def vis_2d_array(arr, full_batch=False, batch_labels=None, **kwargs):
         for idx, ele in enumerate(arr):
             if batch_labels is not None:
                 assert "label" not in kwargs, "It is not possible to use batch_labels and label argument at the same time."
-                img = _vis_single_2d_array(ele, label=batch_labels[idx], **kwargs)
+                img = _vis_single_2d_array(
+                    ele, label=batch_labels[idx], **kwargs)
             else:
                 img = _vis_single_2d_array(ele, **kwargs)
             imgs.append(img)
@@ -286,13 +293,15 @@ def _vis_single_2d_array(arr, colorize=True,
 
     arr = arr.astype(np.float32, copy=True)
     cmap_name = _DEFAULT_CMAP if cmap is None else cmap
-    out_format = {'type': 'PIL', 'mode': 'RGB'} if out_format is None else out_format
+    out_format = {'type': 'PIL',
+                  'mode': 'RGB'} if out_format is None else out_format
     out_format['mode'] = 'RGB' if 'mode' not in out_format else out_format['mode']
 
     # Filter out all values that are somehow invalid and set them to 0:
-    arr, invalid_mask, invalid_values_mask, clipping_mask, upper_clipping_mask, lower_clipping_mask,\
+    arr, invalid_mask, invalid_values_mask, clipping_mask, upper_clipping_mask, lower_clipping_mask, \
         upper_clipping_thresh, lower_clipping_thresh = \
-        invalidate_np_array(arr, clipping, upper_clipping_thresh, lower_clipping_thresh, invalid_values)
+        invalidate_np_array(arr, clipping, upper_clipping_thresh,
+                            lower_clipping_thresh, invalid_values)
 
     # Now work only with valid values of the array and make them visualizable (range 0, 256):
     arr_valid_only = np.ma.masked_array(arr, invalid_mask)
@@ -328,12 +337,14 @@ def _vis_single_2d_array(arr, colorize=True,
         arr = np.uint8(cmap(arr) * 255)[:, :, 0:3]
 
         if mark_invalid:
-            invalid_color = np.array([0, 0, 0]) if invalid_color is None else invalid_color
+            invalid_color = np.array(
+                [0, 0, 0]) if invalid_color is None else invalid_color
             arr[invalid_values_mask] = invalid_color
 
         if clipping:
             if mark_clipping:
-                clipping_color = np.array([255, 255, 255]) if clipping_color is None else clipping_color
+                clipping_color = np.array(
+                    [255, 255, 255]) if clipping_color is None else clipping_color
                 arr[clipping_mask] = clipping_color
             else:
                 min_color = np.uint8(cmap([0.0]) * 255)[:, 0:3]
@@ -345,12 +356,14 @@ def _vis_single_2d_array(arr, colorize=True,
         arr = np.stack([arr, arr, arr], axis=-1)
 
         if mark_invalid:
-            invalid_color = np.array([2, 10, 30]) if invalid_color is None else invalid_color
+            invalid_color = np.array(
+                [2, 10, 30]) if invalid_color is None else invalid_color
             arr[invalid_values_mask] = invalid_color
 
         if clipping:
             if mark_clipping:
-                clipping_color = np.array([67, 50, 54]) if clipping_color is None else clipping_color
+                clipping_color = np.array(
+                    [67, 50, 54]) if clipping_color is None else clipping_color
                 arr[clipping_mask] = clipping_color
             else:
                 min_color = np.array([0, 0, 0])
@@ -363,11 +376,14 @@ def _vis_single_2d_array(arr, colorize=True,
     min_color = "black" if not colorize else _cmap_min_str(cmap_name)
     max_color = "white" if not colorize else _cmap_max_str(cmap_name)
     if image_range_colors_off:
-        image_range_text = "Image: Constant: %0.3f" % min_value if is_constant else "Min: %0.3f Max: %0.3f" % (arr_min, arr_max)
+        image_range_text = "Image: Constant: %0.3f" % min_value if is_constant else "Min: %0.3f Max: %0.3f" % (
+            arr_min, arr_max)
     else:
-        image_range_text = "Image: Constant: %0.3f" % min_value if is_constant else "Min (%s): %0.3f Max (%s): %0.3f" % (min_color, arr_min, max_color, arr_max)
+        image_range_text = "Image: Constant: %0.3f" % min_value if is_constant else "Min (%s): %0.3f Max (%s): %0.3f" % (
+            min_color, arr_min, max_color, arr_max)
 
-    draw_text = _get_draw_text(text, label, text_off, image_range_text, image_range_text_off)
+    draw_text = _get_draw_text(
+        text, label, text_off, image_range_text, image_range_text_off)
     img = add_text_to_img(img=img, text=draw_text, xy_leftbottom=(5, 5))
 
     out = _convert_to_out_format(img, out_format)
@@ -405,7 +421,8 @@ def vis_image(img, full_batch=False, batch_labels=None, **kwargs):
         for idx, ele in enumerate(img):
             if batch_labels is not None:
                 assert "label" not in kwargs, "It is not possible to use batch_labels and label argument at the same time."
-                img_vis = _vis_single_image(ele, label=batch_labels[idx], **kwargs)
+                img_vis = _vis_single_image(
+                    ele, label=batch_labels[idx], **kwargs)
             else:
                 img_vis = _vis_single_image(ele, **kwargs)
             imgs.append(img_vis)
@@ -465,13 +482,15 @@ def _vis_single_image(img,
     img = make_np(img)
 
     img = img.astype(np.float32, copy=True).transpose(1, 2, 0)
-    out_format = {'type': 'PIL', 'mode': 'RGB'} if out_format is None else out_format
+    out_format = {'type': 'PIL',
+                  'mode': 'RGB'} if out_format is None else out_format
     out_format['mode'] = 'RGB' if 'mode' not in out_format else out_format['mode']
 
     # Filter out all values that are somehow invalid and set them to 0:
     img, invalid_mask, invalid_values_mask, clipping_mask, upper_clipping_mask, lower_clipping_mask, \
-    upper_clipping_thresh, lower_clipping_thresh = \
-        invalidate_np_array(img, clipping, upper_clipping_thresh, lower_clipping_thresh, invalid_values)
+        upper_clipping_thresh, lower_clipping_thresh = \
+        invalidate_np_array(img, clipping, upper_clipping_thresh,
+                            lower_clipping_thresh, invalid_values)
 
     # Now work only with valid values of the array and make them visualizable (range 0, 256):
     arr_valid_only = np.ma.masked_array(img, invalid_mask)
@@ -502,12 +521,14 @@ def _vis_single_image(img,
     img = img.astype(np.uint8)
 
     if mark_invalid:
-        invalid_color = np.array([0, 0, 0]) if invalid_color is None else invalid_color
+        invalid_color = np.array(
+            [0, 0, 0]) if invalid_color is None else invalid_color
         img[np.any(invalid_values_mask, axis=2)] = invalid_color
 
     if clipping:
         if mark_clipping:
-            clipping_color = np.array([255, 255, 255]) if clipping_color is None else clipping_color
+            clipping_color = np.array(
+                [255, 255, 255]) if clipping_color is None else clipping_color
             img[np.any(clipping_mask, axis=2)] = clipping_color
         else:
             min_color = np.array([min_value] * 3)
@@ -518,9 +539,10 @@ def _vis_single_image(img,
     img = _to_img(arr=img, mode=out_format['mode'])
 
     image_range_text = "Image: Constant: %0.3f" % min_value if is_constant else "Min: %0.3f Max: %0.3f" % (
-            arr_min, arr_max)
+        arr_min, arr_max)
 
-    draw_text = _get_draw_text(text, label, text_off, image_range_text, image_range_text_off)
+    draw_text = _get_draw_text(
+        text, label, text_off, image_range_text, image_range_text_off)
     img = add_text_to_img(img=img, text=draw_text, xy_leftbottom=(5, 5))
 
     out = _convert_to_out_format(img, out_format)
@@ -567,17 +589,20 @@ def add_text_to_img(img, text,
     text_color = _DEFAULT_TEXT_COLOR if text_color is None else text_color
     font = _get_default_font(size=font_size) if font is None else font
     draw = ImageDraw.Draw(img)
-    text_size = draw.multiline_textsize(text=text, font=font)  # (width, height)
+    text_size = draw.multiline_textbbox(xy=(0, 0), text=text, font=font)  # (width, height)
 
     # shift xy pos according to xy_abs/rel_shifts:
-    x_shift = (x_rel_shift * text_size[0] if x_rel_shift is not None else 0) + (x_abs_shift if x_abs_shift is not None else 0)
-    y_shift = (y_rel_shift * text_size[1] if y_rel_shift is not None else 0) + (y_abs_shift if y_abs_shift is not None else 0)
+    x_shift = (x_rel_shift * text_size[0] if x_rel_shift is not None else 0) + (
+        x_abs_shift if x_abs_shift is not None else 0)
+    y_shift = (y_rel_shift * text_size[1] if y_rel_shift is not None else 0) + (
+        y_abs_shift if y_abs_shift is not None else 0)
 
     if xy_lefttop is not None:
         xy_lefttop = (xy_lefttop[0] + x_shift, xy_lefttop[1] + y_shift)
 
     if xy_leftbottom is not None:
-        xy_leftbottom = (xy_leftbottom[0] + x_shift, xy_leftbottom[1] + y_shift)
+        xy_leftbottom = (xy_leftbottom[0] + x_shift,
+                         xy_leftbottom[1] + y_shift)
 
     resized = False
     if do_resize:
@@ -588,9 +613,11 @@ def add_text_to_img(img, text,
                 if max_resize_factor is not None and resize_factor * 2 > max_resize_factor:
                     break
 
-                img = img.resize(size=(img.width * 2, img.height * 2), resample=Image.NEAREST)
+                img = img.resize(
+                    size=(img.width * 2, img.height * 2), resample=Image.NEAREST)
 
-                xy_lefttop = (xy_lefttop[0] * 2, xy_lefttop[1] * 2) if resize_xy else xy_lefttop
+                xy_lefttop = (xy_lefttop[0] * 2, xy_lefttop[1]
+                              * 2) if resize_xy else xy_lefttop
 
                 resize_factor *= 2
                 resized = True
@@ -600,15 +627,18 @@ def add_text_to_img(img, text,
                 if max_resize_factor is not None and resize_factor * 2 > max_resize_factor:
                     break
 
-                img = img.resize(size=(img.width * 2, img.height * 2), resample=Image.NEAREST)
+                img = img.resize(
+                    size=(img.width * 2, img.height * 2), resample=Image.NEAREST)
 
-                xy_leftbottom = (xy_leftbottom[0] * 2, xy_leftbottom[1] * 2) if resize_xy else xy_leftbottom
+                xy_leftbottom = (
+                    xy_leftbottom[0] * 2, xy_leftbottom[1] * 2) if resize_xy else xy_leftbottom
 
                 resize_factor *= 2
                 resized = True
 
     if xy_lefttop is None:
-        xy_lefttop = (xy_leftbottom[0], img.height - xy_leftbottom[1] - text_size[1])
+        xy_lefttop = (xy_leftbottom[0], img.height -
+                      xy_leftbottom[1] - text_size[1])
 
     draw = ImageDraw.Draw(img) if resized else draw
 
@@ -616,7 +646,8 @@ def add_text_to_img(img, text,
         bbox_space = text_size[1] * 0.1
         # bbox = ([(xy_lefttop[0] - bbox_space, xy_lefttop[1] - bbox_space), (text_size[0] + xy_lefttop[0] + bbox_space + 1, text_size[1] + xy_lefttop[1] + bbox_space + 1)])
         # removed bbox space from top because somehow the text size estimates seemed to be slightly off anyways
-        bbox = ([(xy_lefttop[0] - bbox_space, xy_lefttop[1]), (text_size[0] + xy_lefttop[0] + bbox_space + 1, text_size[1] + xy_lefttop[1] + bbox_space + 1)])
+        bbox = ([(xy_lefttop[0] - bbox_space, xy_lefttop[1]), (text_size[0] +
+                xy_lefttop[0] + bbox_space + 1, text_size[1] + xy_lefttop[1] + bbox_space + 1)])
         draw.rectangle(bbox, bbox_color, bbox_stroke)
 
     draw.multiline_text(xy=xy_lefttop, text=text, fill=text_color, font=font)
@@ -633,7 +664,8 @@ def invalidate_np_array(arr, clipping=False, upper_clipping_thresh=None, lower_c
     """
     invalid_values_mask = np.isinf(arr) | np.isnan(arr)
     if invalid_values is not None:
-        invalid_values_mask = invalid_values_mask | np.isin(arr, invalid_values)
+        invalid_values_mask = invalid_values_mask | np.isin(
+            arr, invalid_values)
 
     if clipping:
         if upper_clipping_thresh is None or lower_clipping_thresh is None:
@@ -642,16 +674,22 @@ def invalidate_np_array(arr, clipping=False, upper_clipping_thresh=None, lower_c
             all_values_invalid = np.all(invalid_values_mask)
 
             if upper_clipping_thresh is None:
-                upper_clipping_thresh = min(np.nanmax(arr[~invalid_values_mask]), mean + 2 * std) if not all_values_invalid else np.nan
+                upper_clipping_thresh = min(np.nanmax(
+                    arr[~invalid_values_mask]), mean + 2 * std) if not all_values_invalid else np.nan
             if lower_clipping_thresh is None:
-                lower_clipping_thresh = max(np.nanmin(arr[~invalid_values_mask]), mean - 2 * std) if not all_values_invalid else np.nan
+                lower_clipping_thresh = max(np.nanmin(
+                    arr[~invalid_values_mask]), mean - 2 * std) if not all_values_invalid else np.nan
 
         with np.errstate(invalid='ignore'):
-            upper_clipping_mask = np.logical_and((arr > upper_clipping_thresh), ~invalid_values_mask)
-            lower_clipping_mask = np.logical_and((arr < lower_clipping_thresh), ~invalid_values_mask)
-        clipping_mask = upper_clipping_mask | lower_clipping_mask  # True = value should be clipped
+            upper_clipping_mask = np.logical_and(
+                (arr > upper_clipping_thresh), ~invalid_values_mask)
+            lower_clipping_mask = np.logical_and(
+                (arr < lower_clipping_thresh), ~invalid_values_mask)
+        # True = value should be clipped
+        clipping_mask = upper_clipping_mask | lower_clipping_mask
     else:
-        clipping_mask = np.zeros_like(arr, dtype='bool')  # All False because no values should be clipped
+        # All False because no values should be clipped
+        clipping_mask = np.zeros_like(arr, dtype='bool')
         upper_clipping_mask = clipping_mask
         lower_clipping_mask = clipping_mask
 

@@ -5,7 +5,7 @@
     root = '/tmp/kitti/'
 
 [dtu]
-    root = '/tmp/dtu/'
+    root = '/cluster/scratch/barmstron/rmvd/'
 
 [scannet]
     root = '/tmp/scannet/'
