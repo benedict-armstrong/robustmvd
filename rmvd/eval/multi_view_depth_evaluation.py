@@ -525,8 +525,10 @@ class MultiViewDepthEvaluation:
 
         absrel = m_rel_ae(gt=gt_depth, pred=pred_depth, mask=eval_mask, output_scaling_factor=100.0)
         inliers103 = thresh_inliers(gt=gt_depth, pred=pred_depth, thresh=1.03, mask=eval_mask, output_scaling_factor=100.0)
+        inliers110 = thresh_inliers(gt=gt_depth, pred=pred_depth, thresh=1.10, mask=eval_mask, output_scaling_factor=100.0)
+        inliers125 = thresh_inliers(gt=gt_depth, pred=pred_depth, thresh=1.25, mask=eval_mask, output_scaling_factor=100.0)
 
-        metrics = {'absrel': absrel, 'inliers103': inliers103,}
+        metrics = {'absrel': absrel, 'inliers103': inliers103, "inliers110": inliers110, 'inliers125': inliers125}
 
         if self.alignment == "median":
             metrics['scaling_factor'] = pred['scaling_factor']
